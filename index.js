@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000;
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-const password = "titkosjelszo";
+const password = "M3ek@pt#2024!";
 let excelPrices = {}; // Objektum a cikkszámokhoz tartozó Excel árak tárolásához
 let notFoundProducts = [];
 
