@@ -335,9 +335,9 @@
         var fileInput = document.querySelector('input[type="file"]');
         var originalFileNameInput = document.getElementById("originalFileName");
         var originalFileName = fileInput.files[0].name; // Az eredeti fájlnév lekérdezése
-        formData.append("excelFile", fileInput.files[0]);
         originalFileNameInput.value = originalFileName; // Az eredeti fájlnév beállítása a rejtett inputba
-        if (!fileInput.files[0]) {
+        formData.append("excelFile", fileInput.files[0]);
+         if (!fileInput.files[0]) {
           alert("Előbb tölts fel egy Excelt...");
           return;
         }
