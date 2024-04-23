@@ -51,6 +51,34 @@
         cursor: not-allowed;
       }
 
+      .loading-line-container {
+        position: relative;
+        width: 100%;
+        height: 10px;
+        background-color: #ddd;
+        border-radius: 5px;
+      }
+
+      .loading-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background-color: #4caf50;
+        border-radius: 5px;
+        width: 0;
+        transition: width 0.5s ease-in-out;
+        z-index: 1; /* A csík legyen a legfelső rétegben */
+      }
+
+      .loading-percent {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2; /* A százalék érték legyen a csík felett */
+      }
+
       #dataTable {
         width: 100%;
         border-collapse: collapse;
@@ -161,15 +189,21 @@
       </form>
     </div>
     <form id="uploadForm" style="display: none" enctype="multipart/form-data">
-      <input type="file" name="excelFile" accept=".xlsx" />
-      <button type="button" onclick="clearTableAndUpload()">Upload</button>
-      <button type="button" onclick="downloadExcel()">Download Excel</button>
       <div class="loading-container">
         <div class="loading-line-container">
           <span class="loading-percent">0%</span>
           <div class="loading-line"></div>
         </div>
       </div>
+      <input type="file" name="excelFile" accept=".xlsx" />
+      <input
+        type="hidden"
+        id="originalFileName"
+        name="originalFileName"
+        value=""
+      />
+      <button type="button" onclick="clearTableAndUpload()">Upload</button>
+      <button type="button" onclick="downloadExcel()">Download Excel</button>
     </form>
     <div id="loadingSpinner" class="loader"></div>
     <table id="dataTable" border="1">
@@ -218,10 +252,11 @@
 
       function updateLoadingProgress(currentStep, totalSteps) {
         const percentComplete = Math.round((currentStep / totalSteps) * 100);
-        document.querySelector(".loading-percent").textContent =
-          `${percentComplete}%`;
-        document.querySelector(".loading-line").style.width =
-          `${percentComplete}%`;
+        const loadingLine = document.querySelector(".loading-line");
+        const loadingPercent = document.querySelector(".loading-percent");
+
+        loadingPercent.textContent = `${percentComplete}%`;
+        loadingLine.style.width = `${percentComplete}%`;
       }
 
       function displayNotFoundProducts(notFoundItems) {
@@ -298,7 +333,10 @@
       async function uploadFile() {
         var formData = new FormData();
         var fileInput = document.querySelector('input[type="file"]');
+        var originalFileNameInput = document.getElementById("originalFileName");
+        var originalFileName = fileInput.files[0].name; // Az eredeti fájlnév lekérdezése
         formData.append("excelFile", fileInput.files[0]);
+        originalFileNameInput.value = originalFileName; // Az eredeti fájlnév beállítása a rejtett inputba
         if (!fileInput.files[0]) {
           alert("Előbb tölts fel egy Excelt...");
           return;
@@ -498,8 +536,18 @@
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
 
-        // Excel fájl letöltése
-        XLSX.writeFile(wb, "data.xlsx");
+        // Excel fájl nevének előkészítése
+        var originalFileName =
+          document.getElementById("originalFileName").value;
+        var currentDate = new Date();
+        var formattedDate = currentDate.toISOString().split("T")[0]; // Dátum formázása YYYY-MM-DD formátumra
+        var downloadFileName = originalFileName.replace(
+          ".xlsx",
+          "_" + formattedDate + ".xlsx",
+        ); // Új fájlnév hozzáadott dátummal
+
+        // Excel fájl letöltése a módosított névvel
+        XLSX.writeFile(wb, downloadFileName);
       }
 
       function showLoadingSpinner() {
