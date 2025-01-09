@@ -213,7 +213,7 @@
     <script>
       async function authenticate(password) {
         try {
-          const response = await fetch("/.netlify/functions/authenticate", {
+          const response = await fetch("https://inquisitive-parfait-819900.netlify.app/", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ password }),
@@ -328,43 +328,43 @@
         }
       }
 
-      async function uploadFile() {
-        var formData = new FormData();
-        var fileInput = document.querySelector('input[type="file"]');
-        var originalFileNameInput = document.getElementById("originalFileName");
-        if (!fileInput.files[0]) {
-          alert("Előbb tölts fel egy Excelt...");
-          return;
-        }
-        var originalFileName = fileInput.files[0].name; // Az eredeti fájlnév lekérdezése
-        originalFileNameInput.value = originalFileName; // Az eredeti fájlnév beállítása a rejtett inputba
-        formData.append("excelFile", fileInput.files[0]);
-        showLoadingSpinner();
-        try {
-          const response = await fetch("/upload", {
-            method: "POST",
-            body: formData,
-          });
+     async function uploadFile() {
+  var formData = new FormData();
+  var fileInput = document.querySelector('input[type="file"]');
+  var originalFileNameInput = document.getElementById("originalFileName");
+  if (!fileInput.files[0]) {
+    alert("Előbb tölts fel egy Excelt...");
+    return;
+  }
+  var originalFileName = fileInput.files[0].name; // Az eredeti fájlnév lekérdezése
+  originalFileNameInput.value = originalFileName; // Az eredeti fájlnév beállítása a rejtett inputba
+  formData.append("excelFile", fileInput.files[0]);
+  showLoadingSpinner();
+  try {
+    const response = await fetch("https://inquisitive-parfait-819900.netlify.app/.netlify/functions/upload", {
+      method: "POST",
+      body: formData,
+    });
 
-          const data = await response.json();
+    const data = await response.json();
 
-          excelPrice = data.map((row) => ({
-            ProductNumber: row.ProductNumber || row["Szállítói cikkszám"],
-            ProductPrice: row.Price || row["1-KISKER"] || 0,
-          }));
+    excelPrice = data.map((row) => ({
+      ProductNumber: row.ProductNumber || row["Szállítói cikkszám"],
+      ProductPrice: row.Price || row["1-KISKER"] || 0,
+    }));
 
-          viszonteladoi = data.map((row) => ({
-            ProductNumber: row.ProductNumber || row["Szállítói cikkszám"],
-            ProductPrice: row["4-VISZONTELADÓ"] || 0,
-          }));
+    viszonteladoi = data.map((row) => ({
+      ProductNumber: row.ProductNumber || row["Szállítói cikkszám"],
+      ProductPrice: row["4-VISZONTELADÓ"] || 0,
+    }));
 
-          await searchProducts(data);
-        } catch (error) {
-          console.error("Error:", error);
-        } finally {
-          hideLoadingSpinner();
-        }
-      }
+    await searchProducts(data);
+  } catch (error) {
+    console.error("Error:", error);
+  } finally {
+    hideLoadingSpinner();
+  }
+}
 
       async function clearTableAndUpload() {
         var table = document.getElementById("dataTable");
