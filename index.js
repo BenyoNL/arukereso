@@ -10,7 +10,6 @@ const port = 3000;
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-const password = "Merkapt2025";
 let excelPrices = {}; // Objektum a cikkszámokhoz tartozó Excel árak tárolásához
 let notFoundProducts = [];
 
@@ -20,18 +19,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.sendFile("index.html", { root: __dirname });
-});
-
-app.post("/authenticate", (req, res) => {
-  const { password: providedPassword } = req.body;
-
-  if (providedPassword === password) {
-    // Ha a jelszó egyezik
-    res.json({ authenticated: true, message: "Authentication successful!" });
-  } else {
-    // Hibás jelszó esetén
-    res.status(401).json({ authenticated: false, message: "Invalid password!" });
-  }
 });
 
 app.post("/", (req, res) => {
