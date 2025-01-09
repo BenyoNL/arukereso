@@ -26,27 +26,6 @@ app.post("/", (req, res) => {
   res.sendFile("index.html", { root: __dirname });
 });
 
-app.post("/upload", upload.single("excelFile"), async (req, res) => {
-  try {
-    const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    const data = xlsx.utils.sheet_to_json(sheet, { defval: null });
-
-    // Excel árakat tároljuk az objektumban a cikkszámok alapján
-    data.forEach((row) => {
-      if (row.ProductNumber && row["1-KISKER"]) {
-        // Ellenőrizzük, hogy létezik-e a '1-KISKER' mező
-        excelPrices[row.ProductNumber] = row["1-KISKER"]; // Itt a '1-KISKER' mezőt tároljuk el
-      }
-    });
-
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: "Error reading Excel file" });
-  }
-});
-
 app.post("/search", async (req, res) => {
   const productNumbers = req.body.productNumbers;
   try {
