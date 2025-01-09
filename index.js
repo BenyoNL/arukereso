@@ -26,11 +26,11 @@ app.post("/authenticate", (req, res) => {
   const { password: providedPassword } = req.body;
 
   if (providedPassword === password) {
-    // Ha a jelszó egyezik, akkor autentikált
-    res.json({ authenticated: true });
+    // Ha a jelszó egyezik
+    res.json({ authenticated: true, message: "Authentication successful!" });
   } else {
-    // Ha nem egyezik, akkor hibaüzenet
-    res.status(401).json({ authenticated: false });
+    // Hibás jelszó esetén
+    res.status(401).json({ authenticated: false, message: "Invalid password!" });
   }
 });
 
