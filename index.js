@@ -10,6 +10,7 @@ const port = 3000;
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+const password = "Merkapt2025";
 let excelPrices = {}; // Objektum a cikkszámokhoz tartozó Excel árak tárolásához
 let notFoundProducts = [];
 
@@ -21,9 +22,42 @@ app.get("/", (req, res) => {
   res.sendFile("index.html", { root: __dirname });
 });
 
+app.post("/authenticate", (req, res) => {
+  const { password: providedPassword } = req.body;
+
+  if (providedPassword === password) {
+    // Ha a jelszó egyezik, akkor autentikált
+    res.json({ authenticated: true });
+  } else {
+    // Ha nem egyezik, akkor hibaüzenet
+    res.status(401).json({ authenticated: false });
+  }
+});
+
 app.post("/", (req, res) => {
   // Alapértelmezett esetben a főoldalt szolgáltatjuk
   res.sendFile("index.html", { root: __dirname });
+});
+
+app.post("/upload", upload.single("excelFile"), async (req, res) => {
+  try {
+    const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const data = xlsx.utils.sheet_to_json(sheet, { defval: null });
+
+    // Excel árakat tároljuk az objektumban a cikkszámok alapján
+    data.forEach((row) => {
+      if (row.ProductNumber && row["1-KISKER"]) {
+        // Ellenőrizzük, hogy létezik-e a '1-KISKER' mező
+        excelPrices[row.ProductNumber] = row["1-KISKER"]; // Itt a '1-KISKER' mezőt tároljuk el
+      }
+    });
+
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: "Error reading Excel file" });
+  }
 });
 
 app.post("/search", async (req, res) => {
